@@ -1,39 +1,67 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Calendar, User, Clock, Search, Filter, Tag, ArrowRight } from "lucide-react";
-import { articoliEvidenza } from "./Data";
+import { supabase } from "../lib/supabase";
 
 const BlogList = () => {
+  const [articles, setArticles] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [sortBy, setSortBy] = useState("newest");
 
-  // Estrai tutti i tag unici
-  const allTags = [...new Set(articoliEvidenza.flatMap(article => article.tags || []))];
+  useEffect(() => {
+    fetchArticles();
+  }, []);
 
-  // Filtra e ordina gli articoli
-  const filteredArticles = articoliEvidenza
+  const fetchArticles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('blog_articles')
+        .select('*')
+        .order('published_date', { ascending: false });
+
+      if (error) throw error;
+      setArticles(data || []);
+    } catch (error) {
+      console.error('Error fetching articles:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const allTags = [...new Set(articles.flatMap(article => article.tags || []))];
+
+  const filteredArticles = articles
     .filter(article => {
-      const matchesSearch = 
-        article.titolo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch =
+        article.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         article.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        article.autore.toLowerCase().includes(searchTerm.toLowerCase());
-      
+        article.author.toLowerCase().includes(searchTerm.toLowerCase());
+
       const matchesTag = !selectedTag || (article.tags && article.tags.includes(selectedTag));
-      
+
       return matchesSearch && matchesTag;
     })
     .sort((a, b) => {
       if (sortBy === "newest") {
-        return new Date(b.data) - new Date(a.data);
+        return new Date(b.published_date) - new Date(a.published_date);
       } else if (sortBy === "oldest") {
-        return new Date(a.data) - new Date(b.data);
+        return new Date(a.published_date) - new Date(b.published_date);
       } else if (sortBy === "readTime") {
-        return a.tempoLettura - b.tempoLettura;
+        return a.reading_time - b.reading_time;
       }
       return 0;
     });
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl">Caricamento articoli...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
@@ -51,7 +79,6 @@ const BlogList = () => {
         <link rel="canonical" href="https://studiofiscaleamoroso.com/blog" />
       </Helmet>
 
-      {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-blue-700 text-white py-20">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-4xl mx-auto">
@@ -62,7 +89,7 @@ const BlogList = () => {
               </span>
             </h1>
             <p className="text-xl md:text-2xl text-blue-100 mb-8 leading-relaxed">
-              Approfondimenti, guide pratiche e aggiornamenti normativi 
+              Approfondimenti, guide pratiche e aggiornamenti normativi
               per navigare nel mondo della fiscalità con sicurezza
             </p>
             <div className="flex flex-wrap justify-center gap-4 text-sm">
@@ -84,10 +111,8 @@ const BlogList = () => {
       </div>
 
       <div className="container mx-auto px-4 py-12">
-        {/* Filtri e Ricerca */}
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-12 border border-gray-100">
           <div className="flex flex-col lg:flex-row gap-6 items-center">
-            {/* Barra di ricerca */}
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
@@ -99,7 +124,6 @@ const BlogList = () => {
               />
             </div>
 
-            {/* Filtro per tag */}
             <div className="flex items-center gap-2">
               <Filter className="w-5 h-5 text-gray-500" />
               <select
@@ -114,7 +138,6 @@ const BlogList = () => {
               </select>
             </div>
 
-            {/* Ordinamento */}
             <div className="flex items-center gap-2">
               <span className="text-gray-500 text-sm">Ordina per:</span>
               <select
@@ -129,7 +152,6 @@ const BlogList = () => {
             </div>
           </div>
 
-          {/* Statistiche */}
           <div className="mt-6 pt-6 border-t border-gray-100">
             <div className="flex flex-wrap gap-6 text-sm text-gray-600">
               <span>
@@ -139,64 +161,59 @@ const BlogList = () => {
                 <strong className="text-blue-600">{allTags.length}</strong> categorie disponibili
               </span>
               <span>
-                Ultimo aggiornamento: <strong className="text-blue-600">Ottobre 2024</strong>
+                Ultimo aggiornamento: <strong className="text-blue-600">
+                  {new Date().toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })}
+                </strong>
               </span>
             </div>
           </div>
         </div>
 
-        {/* Griglia degli articoli */}
         {filteredArticles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredArticles.map((post) => (
-              <article 
-                key={post.id} 
+              <article
+                key={post.id}
                 className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200"
               >
-                {/* Immagine */}
-                {post.immagine && (
+                {post.image_url && (
                   <div className="relative overflow-hidden h-48">
                     <img
-                      src={post.immagine}
-                      alt={post.titolo}
+                      src={post.image_url}
+                      alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                    
-                    {/* Badge tempo di lettura */}
+
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-700 flex items-center">
                       <Clock className="w-3 h-3 mr-1" />
-                      {post.tempoLettura} min
+                      {post.reading_time} min
                     </div>
                   </div>
                 )}
 
                 <div className="p-6">
-                  {/* Metadata */}
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {post.data}
+                      {new Date(post.published_date).toLocaleDateString('it-IT')}
                     </div>
                     <div className="flex items-center">
                       <User className="w-4 h-4 mr-1" />
-                      {post.autore}
+                      {post.author}
                     </div>
                   </div>
 
-                  {/* Titolo */}
                   <h2 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
-                    {post.titolo}
+                    {post.title}
                   </h2>
 
-                  {/* Excerpt */}
                   <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
                     {post.excerpt.length > 120
                       ? `${post.excerpt.substring(0, 120)}...`
                       : post.excerpt}
                   </p>
 
-                  {/* Tags */}
                   {post.tags && post.tags.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
                       {post.tags.slice(0, 2).map((tag, index) => (
@@ -215,7 +232,6 @@ const BlogList = () => {
                     </div>
                   )}
 
-                  {/* Link */}
                   <Link
                     to={`/blog/${post.slug}`}
                     className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold group-hover:gap-2 transition-all duration-200"
@@ -252,13 +268,12 @@ const BlogList = () => {
           </div>
         )}
 
-        {/* Newsletter Signup */}
         <div className="mt-16 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-8 text-white text-center">
           <h3 className="text-2xl font-bold mb-4">
             Rimani aggiornato sulle novità fiscali
           </h3>
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            Ricevi i nostri articoli più recenti e gli aggiornamenti normativi 
+            Ricevi i nostri articoli più recenti e gli aggiornamenti normativi
             direttamente nella tua casella di posta elettronica.
           </p>
           <Link

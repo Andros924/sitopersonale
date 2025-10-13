@@ -19,6 +19,10 @@ import PianificazioneFiscale from "./pages/PianificazioneFiscale";
 import ContabilitaFiscale from "./pages/ContabilitaFiscale";
 import AssistenzaControlliFiscali from "./pages/AssistenzaControlliFiscali";
 import ContrattoLocazione from "./pages/ContrattoLocazione";
+import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
+import AdminEditor from "./pages/AdminEditor";
+import MigrateArticles from "./pages/MigrateArticles";
 
 function App() {
   return (
@@ -54,6 +58,11 @@ function App() {
           element={<AssistenzaControlliFiscali />}
         />
         <Route path="/contratto-locazione" element={<ContrattoLocazione />} />
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/editor" element={<AdminEditor />} />
+        <Route path="/admin/editor/:id" element={<AdminEditor />} />
+        <Route path="/admin/migrate" element={<MigrateArticles />} />
       </Routes>
       <Footer />
     </>
