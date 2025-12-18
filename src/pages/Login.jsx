@@ -36,6 +36,13 @@ export default function Login() {
           </div>
           <h2 className="text-3xl font-bold text-gray-900">Accesso Admin</h2>
           <p className="text-gray-600 mt-2"> Accedi per gestire il blog </p>
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <span className="font-semibold">Credenziali di prova:</span><br/>
+              Email: andros88@gmail.com<br/>
+              Password: Ermetello88
+            </p>
+          </div>
         </div>
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
@@ -50,6 +57,7 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              placeholder="andros88@gmail.com"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
@@ -61,6 +69,7 @@ export default function Login() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              placeholder="Ermetello88"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
             />
