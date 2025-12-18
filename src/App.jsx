@@ -1,5 +1,6 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, useNavigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import ChiSiamo from "./pages/ChiSiamo";
@@ -19,13 +20,16 @@ import PianificazioneFiscale from "./pages/PianificazioneFiscale";
 import ContabilitaFiscale from "./pages/ContabilitaFiscale";
 import AssistenzaControlliFiscali from "./pages/AssistenzaControlliFiscali";
 import ContrattoLocazione from "./pages/ContrattoLocazione";
-import Admin from "./pages/Admin";
-import AdminLogin from "./pages/AdminLogin";
-import AdminEditor from "./pages/AdminEditor";
-import MigrateArticles from "./pages/MigrateArticles";
-import BlogEditor from "./pages/BlogEditor";
+import Login from "./pages/Login";
+import ProtectedBlogEditor from "./pages/ProtectedBlogEditor";
 
 function App() {
+  const { checkAuth } = useAuth();
+  
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
     <>
       <Navbar />
@@ -47,12 +51,8 @@ function App() {
         <Route path="/contabilita-aziendale" element={<ContabilitaFiscale />} />
         <Route path="/assistenza-controlli" element={<AssistenzaControlliFiscali />} />
         <Route path="/contratto-locazione" element={<ContrattoLocazione />} />
-        <Route path="/admin/login" element={<AdminLogin />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/editor" element={<AdminEditor />} />
-        <Route path="/admin/editor/:id" element={<AdminEditor />} />
-        <Route path="/admin/migrate" element={<MigrateArticles />} />
-        <Route path="/blog/editor" element={<BlogEditor />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/blog/editor" element={<ProtectedBlogEditor />} />
       </Routes>
       <Footer />
     </>

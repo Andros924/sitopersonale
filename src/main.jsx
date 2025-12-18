@@ -6,6 +6,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import "./index.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
 root.render(
   <BrowserRouter>
     <AuthProvider>
