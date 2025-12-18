@@ -23,6 +23,7 @@ import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminEditor from "./pages/AdminEditor";
 import MigrateArticles from "./pages/MigrateArticles";
+import BlogEditor from "./pages/BlogEditor";
 
 function App() {
   return (
@@ -38,31 +39,20 @@ function App() {
         <Route path="/pubblicazioni" element={<Pubblicazioni />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsConditions />} />
-        <Route
-          path="/registrazione-preliminare"
-          element={<RegistrazionePreliminare />}
-        />
+        <Route path="/registrazione-preliminare" element={<RegistrazionePreliminare />} />
         <Route path="/successioni-servizio" element={<SuccessioniServizio />} />
         <Route path="/consulenza-fiscale" element={<ConsulenzaFiscale />} />
-        <Route
-          path="/dichiarazione-redditi"
-          element={<DichiarazioneRedditi />}
-        />
-        <Route
-          path="/pianificazione-fiscale"
-          element={<PianificazioneFiscale />}
-        />
+        <Route path="/dichiarazione-redditi" element={<DichiarazioneRedditi />} />
+        <Route path="/pianificazione-fiscale" element={<PianificazioneFiscale />} />
         <Route path="/contabilita-aziendale" element={<ContabilitaFiscale />} />
-        <Route
-          path="/assistenza-controlli"
-          element={<AssistenzaControlliFiscali />}
-        />
+        <Route path="/assistenza-controlli" element={<AssistenzaControlliFiscali />} />
         <Route path="/contratto-locazione" element={<ContrattoLocazione />} />
         <Route path="/admin/login" element={<AdminLogin />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/editor" element={<AdminEditor />} />
         <Route path="/admin/editor/:id" element={<AdminEditor />} />
         <Route path="/admin/migrate" element={<MigrateArticles />} />
+        <Route path="/blog/editor" element={<BlogEditor />} />
       </Routes>
       <Footer />
     </>
