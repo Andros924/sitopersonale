@@ -1,5 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import { createContext, useContext } from 'react';
 
 const AuthContext = createContext({});
 
@@ -12,53 +11,12 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      (async () => {
-        setUser(session?.user ?? null);
-      })();
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const signIn = async (email, password) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
-    return data;
-  };
-
-  const signUp = async (email, password) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    });
-    if (error) throw error;
-    return data;
-  };
-
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
-  };
-
   const value = {
-    user,
-    signIn,
-    signUp,
-    signOut,
-    loading,
+    user: null,
+    signIn: () => Promise.reject(new Error('Not implemented')),
+    signUp: () => Promise.reject(new Error('Not implemented')),
+    signOut: () => Promise.reject(new Error('Not implemented')),
+    loading: false,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
