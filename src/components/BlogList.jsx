@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import { Calendar, User, Clock, Search, Filter, Tag, ArrowRight } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { articoliEvidenza } from "./Data";
 
 const BlogList = () => {
   const [articles, setArticles] = useState([]);
@@ -10,12 +11,27 @@ const BlogList = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [sortBy, setSortBy] = useState("newest");
+  const [supabaseError, setSupabaseError] = useState(null);
 
   useEffect(() => {
     fetchArticles();
   }, []);
 
   const fetchArticles = async () => {
+    // If Supabase is not configured, use local data
+    if (!supabase) {
+      console.warn("Supabase not configured, using local data");
+      setArticles(articoliEvidenza.map(article => ({
+        ...article,
+        published_date: article.data,
+        reading_time: article.tempoLettura,
+        image_url: article.immagine,
+        tags: article.tags || []
+      })));
+      setLoading(false);
+      return;
+    }
+
     try {
       const { data, error } = await supabase
         .from('blog_articles')
@@ -26,6 +42,15 @@ const BlogList = () => {
       setArticles(data || []);
     } catch (error) {
       console.error('Error fetching articles:', error);
+      setSupabaseError('Errore nel caricamento degli articoli: ' + error.message);
+      // Fallback to local data
+      setArticles(articoliEvidenza.map(article => ({
+        ...article,
+        published_date: article.data,
+        reading_time: article.tempoLettura,
+        image_url: article.immagine,
+        tags: article.tags || []
+      })));
     } finally {
       setLoading(false);
     }
@@ -102,6 +127,13 @@ const BlogList = () => {
       </div>
 
       <div className="container mx-auto px-4 py-12">
+        {supabaseError && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+            <p className="text-yellow-700">{supabaseError}</p>
+            <p className="text-yellow-600 text-sm mt-2">Visualizzazione dati locali.</p>
+          </div>
+        )}
+
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-12 border border-gray-100">
           <div className="flex flex-col lg:flex-row gap-6 items-center">
             <div className="relative flex-1 max-w-md">
@@ -163,18 +195,18 @@ const BlogList = () => {
         {filteredArticles.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredArticles.map((post) => (
-              <article key={post.id} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200">
-                {post.image_url && (
+              <article key={post.id || post.slug} className="group bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200">
+                {(post.image_url || post.immagine) && (
                   <div className="relative overflow-hidden h-48">
                     <img 
-                      src={post.image_url} 
+                      src={post.image_url || post.immagine} 
                       alt={post.title} 
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-medium text-gray-700 flex items-center">
                       <Clock className="w-3 h-3 mr-1" />
-                      {post.reading_time} min
+                      {post.reading_time || post.tempoLettura} min
                     </div>
                   </div>
                 )}
@@ -183,32 +215,34 @@ const BlogList = () => {
                   <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
                     <div className="flex items-center">
                       <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(post.published_date).toLocaleDateString('it-IT')}
+                      {new Date(post.published_date || post.data).toLocaleDateString('it-IT')}
                     </div>
                     <div className="flex items-center">
                       <User className="w-4 h-4 mr-1" />
-                      {post.author}
+                      {post.author || post.autore}
                     </div>
                   </div>
                   
                   <h2 className="text-xl font-bold text-gray-800 mb-3 line-clamp-2 group-hover:text-blue-600 transition-colors duration-200">
-                    {post.title}
+                    {post.title || post.titolo}
                   </h2>
                   
                   <p className="text-gray-600 mb-4 line-clamp-3 leading-relaxed">
-                    {post.excerpt.length > 120 ? `${post.excerpt.substring(0, 120)}...` : post.excerpt}
+                    {(post.excerpt || post.excerpt).length > 120 ? 
+                      `${(post.excerpt || post.excerpt).substring(0, 120)}...` : 
+                      (post.excerpt || post.excerpt)}
                   </p>
                   
-                  {post.tags && post.tags.length > 0 && (
+                  {(post.tags || post.tags) && (post.tags || post.tags).length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                      {post.tags.slice(0, 2).map((tag, index) => (
+                      {(post.tags || post.tags).slice(0, 2).map((tag, index) => (
                         <span key={index} className="bg-blue-50 text-blue-600 px-2 py-1 rounded-lg text-xs font-medium">
                           {tag}
                         </span>
                       ))}
-                      {post.tags.length > 2 && (
+                      {(post.tags || post.tags).length > 2 && (
                         <span className="text-gray-400 text-xs">
-                          +{post.tags.length - 2} altri
+                          +{(post.tags || post.tags).length - 2} altri
                         </span>
                       )}
                     </div>

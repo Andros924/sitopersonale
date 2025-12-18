@@ -21,10 +21,16 @@ const ProtectedBlogEditor = () => {
 
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [supabaseError, setSupabaseError] = useState(null);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
+    }
+    
+    // Check if Supabase is properly configured
+    if (!supabase) {
+      setSupabaseError("Supabase non è configurato. Controlla le variabili d'ambiente.");
     }
   }, [user, navigate]);
 
@@ -59,6 +65,12 @@ const ProtectedBlogEditor = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!supabase) {
+      setError("Impossibile salvare l'articolo: Supabase non è configurato.");
+      return;
+    }
+    
     setIsSaving(true);
     setError(null);
     
@@ -132,7 +144,7 @@ const ProtectedBlogEditor = () => {
           </button>
           
           <div className="flex items-center gap-4">
-            <span className="text-gray-700">Benvenuto, {user.email}</span>
+            <span className="text-gray-700">Benvenuto, {user.email || user.user_metadata?.name || 'Utente'}</span>
             <button
               onClick={handleSignOut}
               className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
@@ -149,6 +161,12 @@ const ProtectedBlogEditor = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="p-6">
+            {supabaseError && (
+              <div className="mb-4 p-4 bg-yellow-50 text-yellow-700 rounded-lg">
+                {supabaseError}
+              </div>
+            )}
+            
             {error && (
               <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
                 {error}
@@ -266,6 +284,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('bold')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors"
                   title="Grassetto"
+                  disabled={!document.queryCommandSupported('bold')}
                 >
                   <Bold className="w-4 h-4" />
                 </button>
@@ -274,6 +293,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('italic')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors"
                   title="Corsivo"
+                  disabled={!document.queryCommandSupported('italic')}
                 >
                   <Italic className="w-4 h-4" />
                 </button>
@@ -282,6 +302,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('underline')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors"
                   title="Sottolineato"
+                  disabled={!document.queryCommandSupported('underline')}
                 >
                   <Underline className="w-4 h-4" />
                 </button>
@@ -291,6 +312,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('insertUnorderedList')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors"
                   title="Elenco puntato"
+                  disabled={!document.queryCommandSupported('insertUnorderedList')}
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -299,6 +321,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('insertOrderedList')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors"
                   title="Elenco numerato"
+                  disabled={!document.queryCommandSupported('insertOrderedList')}
                 >
                   <ListOrdered className="w-4 h-4" />
                 </button>
@@ -311,6 +334,7 @@ const ProtectedBlogEditor = () => {
                   }}
                   className="p-2 rounded hover:bg-gray-200 transition-colors"
                   title="Link"
+                  disabled={!document.queryCommandSupported('createLink')}
                 >
                   <Link className="w-4 h-4" />
                 </button>
@@ -319,6 +343,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('insertImage', prompt("Inserisci l'URL dell'immagine:"))}
                   className="p-2 rounded hover:bg-gray-200 transition-colors"
                   title="Immagine"
+                  disabled={!document.queryCommandSupported('insertImage')}
                 >
                   <Image className="w-4 h-4" />
                 </button>
@@ -328,6 +353,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('formatBlock', '<p>')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors text-xs"
                   title="Paragrafo"
+                  disabled={!document.queryCommandSupported('formatBlock')}
                 >
                   P
                 </button>
@@ -336,6 +362,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('formatBlock', '<h2>')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors text-xs"
                   title="Titolo"
+                  disabled={!document.queryCommandSupported('formatBlock')}
                 >
                   H2
                 </button>
@@ -344,6 +371,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('formatBlock', '<h3>')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors text-xs"
                   title="Sottotitolo"
+                  disabled={!document.queryCommandSupported('formatBlock')}
                 >
                   H3
                 </button>
@@ -352,6 +380,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('formatBlock', '<blockquote>')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors text-xs"
                   title="Citazione"
+                  disabled={!document.queryCommandSupported('formatBlock')}
                 >
                   "
                 </button>
@@ -360,6 +389,7 @@ const ProtectedBlogEditor = () => {
                   onClick={() => formatText('formatBlock', '<pre>')}
                   className="p-2 rounded hover:bg-gray-200 transition-colors"
                   title="Codice"
+                  disabled={!document.queryCommandSupported('formatBlock')}
                 >
                   <Code className="w-4 h-4" />
                 </button>
@@ -386,7 +416,7 @@ const ProtectedBlogEditor = () => {
               </button>
               <button
                 type="submit"
-                disabled={isSaving}
+                disabled={isSaving || !supabase}
                 className="flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400 disabled:cursor-not-allowed"
               >
                 <Save className="w-5 h-5" />
