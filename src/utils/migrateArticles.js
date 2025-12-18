@@ -17,10 +17,13 @@ export const migrateArticlesToSupabase = async () => {
 
     const { data, error } = await supabase
       .from('blog_articles')
-      .upsert(articlesToMigrate, { onConflict: 'slug', ignoreDuplicates: false });
+      .upsert(articlesToMigrate, {
+        onConflict: 'slug',
+        ignoreDuplicates: false
+      });
 
     if (error) throw error;
-
+    
     console.log('Articles migrated successfully:', data);
     return { success: true, count: articlesToMigrate.length };
   } catch (error) {
@@ -31,16 +34,27 @@ export const migrateArticlesToSupabase = async () => {
 
 function parseItalianDate(dateStr) {
   const months = {
-    'gennaio': '01', 'febbraio': '02', 'marzo': '03', 'aprile': '04',
-    'maggio': '05', 'giugno': '06', 'luglio': '07', 'agosto': '08',
-    'settembre': '09', 'ottobre': '10', 'novembre': '11', 'dicembre': '12'
+    'gennaio': '01',
+    'febbraio': '02',
+    'marzo': '03',
+    'aprile': '04',
+    'maggio': '05',
+    'giugno': '06',
+    'luglio': '07',
+    'agosto': '08',
+    'settembre': '09',
+    'ottobre': '10',
+    'novembre': '11',
+    'dicembre': '12'
   };
 
+  // Handle DD/MM/YYYY format
   if (dateStr.includes('/')) {
     const [day, month, year] = dateStr.split('/');
     return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
   }
 
+  // Handle "DD mese YYYY" format
   const parts = dateStr.toLowerCase().split(' ');
   if (parts.length === 3) {
     const day = parts[0].padStart(2, '0');

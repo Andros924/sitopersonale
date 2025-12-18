@@ -17,12 +17,23 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check active session
-    const session = supabase.auth.getSession();
-    
-    supabase.auth.onAuthStateChange((_event, session) => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user || null);
       setLoading(false);
-    });
+      
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user || null);
+        setLoading(false);
+      });
+      
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
+    
+    checkSession();
   }, []);
 
   const signIn = async (email, password) => {
@@ -37,14 +48,29 @@ export const AuthProvider = ({ children }) => {
       
       setUser(data.user);
       return data.user;
+    } catch (error) {
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
     setUser(null);
+  };
+
+  const checkAuth = async () => {
+    // This function checks if user is authenticated
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user || null);
+      return !!session?.user;
+    } catch (error) {
+      console.error('Auth check error:', error);
+      return false;
+    }
   };
 
   const value = {
@@ -52,6 +78,7 @@ export const AuthProvider = ({ children }) => {
     signIn,
     signOut,
     loading,
+    checkAuth
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

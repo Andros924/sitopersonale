@@ -1,28 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 
-// Get Supabase credentials from environment variables
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Your actual Supabase credentials
+const supabaseUrl = 'https://ctyyadhnvlmvczeugadc.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN0eXlhZGhudmxtdmN6ZXVnYWRjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAyNzA5MzIsImV4cCI6MjA3NTg0NjkzMn0.y2gMIiwqTL-frT62MN4lerqd1hCrWE4jEgxZux2JHvQ';
 
-// Check if environment variables are set
-if (!supabaseUrl) {
-  console.warn('VITE_SUPABASE_URL is not set. Please add it to your .env file.');
-}
-
-if (!supabaseAnonKey) {
-  console.warn('VITE_SUPABASE_ANON_KEY is not set. Please add it to your .env file.');
-}
-
-// Only create client if both URL and key are provided
-let supabase;
-if (supabaseUrl && supabaseAnonKey) {
-  try {
-    supabase = createClient(supabaseUrl, supabaseAnonKey);
-  } catch (error) {
-    console.error('Failed to create Supabase client:', error);
-  }
-} else {
-  console.warn('Supabase client not initialized due to missing configuration.');
-}
-
-export { supabase };
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);

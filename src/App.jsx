@@ -22,13 +22,15 @@ import AssistenzaControlliFiscali from "./pages/AssistenzaControlliFiscali";
 import ContrattoLocazione from "./pages/ContrattoLocazione";
 import Login from "./pages/Login";
 import ProtectedBlogEditor from "./pages/ProtectedBlogEditor";
+import MigrateArticles from "./pages/MigrateArticles";
 
 function App() {
   const { checkAuth } = useAuth();
   
   useEffect(() => {
+    // This will be called once when the app loads
     checkAuth();
-  }, [checkAuth]);
+  }, []);
 
   return (
     <>
@@ -53,6 +55,7 @@ function App() {
         <Route path="/contratto-locazione" element={<ContrattoLocazione />} />
         <Route path="/login" element={<Login />} />
         <Route path="/blog/editor" element={<ProtectedBlogEditor />} />
+        <Route path="/migrate" element={<MigrateArticles />} />
       </Routes>
       <Footer />
     </>
