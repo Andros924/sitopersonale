@@ -48,8 +48,8 @@ const DettaglioArticolo = () => {
           <p className="text-gray-500 mb-6">
             L'articolo richiesto non esiste o è stato rimosso.
           </p>
-          <Link
-            to="/blog"
+          <Link 
+            to="/blog" 
             className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -68,10 +68,7 @@ const DettaglioArticolo = () => {
         <meta property="og:title" content={article.title} />
         <meta property="og:description" content={article.excerpt} />
         <meta property="og:image" content={article.image_url} />
-        <meta
-          property="og:url"
-          content={`https://studiofiscaleamoroso.com/blog/${article.slug}`}
-        />
+        <meta property="og:url" content={`https://studiofiscaleamoroso.com/blog/${article.slug}`} />
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={article.title} />
@@ -80,8 +77,8 @@ const DettaglioArticolo = () => {
       </Helmet>
 
       <div className="container mx-auto px-4 py-12 max-w-4xl">
-        <Link
-          to="/blog"
+        <Link 
+          to="/blog" 
           className="inline-flex items-center text-blue-600 hover:text-blue-700 font-semibold mb-8 transition-colors"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
@@ -90,10 +87,10 @@ const DettaglioArticolo = () => {
 
         {article.image_url && (
           <div className="w-full mb-8 rounded-2xl overflow-hidden shadow-2xl">
-            <img
-              src={article.image_url}
-              alt={article.title}
-              className="w-full h-auto"
+            <img 
+              src={article.image_url} 
+              alt={article.title} 
+              className="w-full h-auto" 
             />
           </div>
         )}
@@ -102,8 +99,8 @@ const DettaglioArticolo = () => {
           <div className="p-8 md:p-12">
             <div className="flex flex-wrap gap-2 mb-6">
               {article.tags && article.tags.map((tag, index) => (
-                <span
-                  key={index}
+                <span 
+                  key={index} 
                   className="bg-blue-50 text-blue-600 px-3 py-1 rounded-lg text-sm font-medium"
                 >
                   {tag}
@@ -118,11 +115,7 @@ const DettaglioArticolo = () => {
             <div className="flex flex-wrap items-center gap-6 text-gray-600 mb-8 pb-8 border-b border-gray-200">
               <div className="flex items-center">
                 <CalendarIcon className="w-5 h-5 mr-2 text-blue-600" />
-                <span>{new Date(article.published_date).toLocaleDateString('it-IT', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
-                })}</span>
+                <span>{new Date(article.published_date).toLocaleDateString('it-IT', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
               </div>
               <div className="flex items-center">
                 <UserIcon className="w-5 h-5 mr-2 text-blue-600" />
@@ -138,7 +131,7 @@ const DettaglioArticolo = () => {
               {article.excerpt}
             </div>
 
-            <div
+            <div 
               className="prose prose-lg max-w-none text-gray-700 leading-relaxed"
               dangerouslySetInnerHTML={{ __html: article.content }}
             />
@@ -152,8 +145,8 @@ const DettaglioArticolo = () => {
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
             Il nostro team di esperti è pronto ad assisterti con soluzioni su misura per le tue esigenze fiscali.
           </p>
-          <Link
-            to="/contatti"
+          <Link 
+            to="/contatti" 
             className="inline-flex items-center bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-blue-50 transition-colors duration-200"
           >
             Contattaci ora

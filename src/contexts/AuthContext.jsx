@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const AuthContext = createContext({});
 
@@ -12,36 +13,38 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const signIn = async (username, password) => {
+  useEffect(() => {
+    // Check active session
+    const session = supabase.auth.getSession();
+    
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+      setLoading(false);
+    });
+  }, []);
+
+  const signIn = async (email, password) => {
     setLoading(true);
     try {
-      // Simple authentication - in a real app, this would be an API call
-      if (username === 'Andro88' && password === 'Ermetello88') {
-        const user = { id: 1, username: 'Andro88', name: 'Alessandro Amoroso' };
-        setUser(user);
-        localStorage.setItem('user', JSON.stringify(user));
-        return user;
-      } else {
-        throw new Error('Credenziali non valide');
-      }
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      setUser(data.user);
+      return data.user;
     } finally {
       setLoading(false);
     }
   };
 
   const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('user');
-  };
-
-  // Check if user is already logged in
-  const checkAuth = () => {
-    const savedUser = localStorage.getItem('user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
   };
 
   const value = {
@@ -49,7 +52,6 @@ export const AuthProvider = ({ children }) => {
     signIn,
     signOut,
     loading,
-    checkAuth
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

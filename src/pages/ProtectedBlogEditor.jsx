@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
 import { Helmet } from "react-helmet";
 import { ArrowLeft, Save, Bold, Italic, Underline, List, ListOrdered, Link, Image, Code, LogOut } from "lucide-react";
 
@@ -19,6 +20,7 @@ const ProtectedBlogEditor = () => {
   });
 
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -55,13 +57,30 @@ const ProtectedBlogEditor = () => {
     document.execCommand(command, false, value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSaving(true);
+    setError(null);
     
-    // Simulate saving process
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      const articleData = {
+        title: article.title,
+        slug: article.slug,
+        excerpt: article.excerpt,
+        content: article.content,
+        image_url: article.imageUrl,
+        author: article.author,
+        reading_time: parseInt(article.readingTime),
+        tags: article.tags.split(',').map(tag => tag.trim()).filter(tag => tag),
+        published_date: new Date().toISOString()
+      };
+
+      const { error: insertError } = await supabase
+        .from('blog_articles')
+        .insert([articleData]);
+
+      if (insertError) throw insertError;
+
       alert("Articolo salvato con successo!");
       // Reset form after saving
       setArticle({
@@ -74,7 +93,12 @@ const ProtectedBlogEditor = () => {
         readingTime: 5,
         imageUrl: ""
       });
-    }, 1000);
+    } catch (err) {
+      console.error("Error saving article:", err);
+      setError("Errore durante il salvataggio dell'articolo: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSignOut = async () => {
@@ -108,7 +132,7 @@ const ProtectedBlogEditor = () => {
           </button>
           
           <div className="flex items-center gap-4">
-            <span className="text-gray-700">Benvenuto, {user.name}</span>
+            <span className="text-gray-700">Benvenuto, {user.email}</span>
             <button
               onClick={handleSignOut}
               className="flex items-center text-gray-600 hover:text-gray-800 transition-colors"
@@ -125,6 +149,12 @@ const ProtectedBlogEditor = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="p-6">
+            {error && (
+              <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
+                {error}
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
