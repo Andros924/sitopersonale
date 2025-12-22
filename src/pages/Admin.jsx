@@ -24,7 +24,7 @@ export default function Admin() {
         .from('blog_articles')
         .select('*')
         .order('published_date', { ascending: false });
-
+      
       if (error) throw error;
       setArticles(data || []);
     } catch (error) {
@@ -36,15 +36,15 @@ export default function Admin() {
 
   const handleDelete = async (id) => {
     if (!confirm('Sei sicuro di voler eliminare questo articolo?')) return;
-
+    
     try {
       const { error } = await supabase
         .from('blog_articles')
         .delete()
         .eq('id', id);
-
+      
       if (error) throw error;
-      fetchArticles();
+      fetchArticles(); // Refresh the list
     } catch (error) {
       console.error('Error deleting article:', error);
       alert('Errore durante l\'eliminazione dell\'articolo');
@@ -125,7 +125,7 @@ export default function Admin() {
                       {article.title}
                     </div>
                     <div className="text-sm text-gray-500">
-                      {article.excerpt.substring(0, 100)}...
+                      {article.excerpt?.substring(0, 100)}...
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
