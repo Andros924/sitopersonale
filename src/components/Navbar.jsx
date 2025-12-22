@@ -56,7 +56,9 @@ const Navbar = () => {
         {/* Menu items */}
         <div
           id="navbar-menu"
-          className={`absolute md:static top-full left-0 right-0 md:top-0 md:left-auto md:right-auto bg-blue-900 md:bg-transparent px-4 md:px-0 z-50 flex-col md:flex-row md:flex space-y-4 md:space-y-0 md:space-x-4 ${isOpen ? "block" : "hidden"} md:block shadow-lg md:shadow-none`}
+          className={`absolute md:static top-full left-0 right-0 md:top-0 md:left-auto md:right-auto bg-blue-900 md:bg-transparent px-4 md:px-0 z-50 flex-col md:flex-row md:flex space-y-4 md:space-y-0 md:space-x-4 ${
+            isOpen ? "block" : "hidden"
+          } md:block shadow-lg md:shadow-none`}
         >
           <Link to="/" className="block text-gray-200 hover:text-gray-400 py-2 md:py-0">
             Home
@@ -76,13 +78,11 @@ const Navbar = () => {
           <Link to="/pubblicazioni" className="block text-gray-200 hover:text-gray-400 py-2 md:py-0">
             Pubblicazioni
           </Link>
-          {user ? (
-            <Link to="/blog/editor" className="block text-gray-200 hover:text-gray-400 py-2 md:py-0">
-              Editor
-            </Link>
-          ) : (
-            <Link to="/login" className="block text-gray-200 hover:text-gray-400 py-2 md:py-0">
-              Login
+          
+          {/* Admin Panel Link - Only visible when logged in */}
+          {user && (
+            <Link to="/admin" className="block text-gray-200 hover:text-gray-400 py-2 md:py-0">
+              Admin Panel
             </Link>
           )}
         </div>

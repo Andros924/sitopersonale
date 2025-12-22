@@ -23,6 +23,9 @@ import ContrattoLocazione from "./pages/ContrattoLocazione";
 import Login from "./pages/Login";
 import ProtectedBlogEditor from "./pages/ProtectedBlogEditor";
 import MigrateArticles from "./pages/MigrateArticles";
+import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
+import AdminEditor from "./pages/AdminEditor";
 
 function App() {
   const { checkAuth } = useAuth();
@@ -53,8 +56,18 @@ function App() {
         <Route path="/contabilita-aziendale" element={<ContabilitaFiscale />} />
         <Route path="/assistenza-controlli" element={<AssistenzaControlliFiscali />} />
         <Route path="/contratto-locazione" element={<ContrattoLocazione />} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/editor" element={<AdminEditor />} />
+        <Route path="/admin/editor/:id" element={<AdminEditor />} />
+        
+        {/* Blog Editor Routes (alternative) */}
         <Route path="/login" element={<Login />} />
         <Route path="/blog/editor" element={<ProtectedBlogEditor />} />
+        
+        {/* Migration Route */}
         <Route path="/migrate" element={<MigrateArticles />} />
       </Routes>
       <Footer />
