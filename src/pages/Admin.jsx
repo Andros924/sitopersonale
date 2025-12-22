@@ -146,20 +146,22 @@ export default function Admin() {
                       {new Date(article.published_date).toLocaleDateString('it-IT')}
                     </td>
                     <td className="px-6 py-4 text-right text-sm font-medium">
-                      <button
-                        onClick={() => navigate(`/admin/editor/${article.id}`)}
-                        className="text-blue-600 hover:text-blue-900 mr-4"
-                        title="Modifica"
-                      >
-                        <Edit2 size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(article.id)}
-                        className="text-red-600 hover:text-red-900"
-                        title="Elimina"
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                      <div className="flex justify-end space-x-3">
+                        <button
+                          onClick={() => navigate(`/admin/editor/${article.id}`)}
+                          className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors"
+                          title="Modifica"
+                        >
+                          <Edit2 size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(article.id)}
+                          className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors"
+                          title="Elimina"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
