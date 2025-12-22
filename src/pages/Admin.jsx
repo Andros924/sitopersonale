@@ -29,13 +29,14 @@ export default function Admin() {
       setArticles(data || []);
     } catch (error) {
       console.error('Error fetching articles:', error);
+      alert('Errore nel caricamento degli articoli: ' + error.message);
     } finally {
       setLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Sei sicuro di voler eliminare questo articolo?')) return;
+    if (!confirm('Sei sicuro di voler eliminare questo articolo? Questa azione non può essere annullata.')) return;
     
     try {
       const { error } = await supabase
@@ -44,10 +45,14 @@ export default function Admin() {
         .eq('id', id);
       
       if (error) throw error;
-      fetchArticles(); // Refresh the list
+      
+      // Remove the deleted article from the state
+      setArticles(articles.filter(article => article.id !== id));
+      
+      alert('Articolo eliminato con successo!');
     } catch (error) {
       console.error('Error deleting article:', error);
-      alert('Errore durante l\'eliminazione dell\'articolo');
+      alert('Errore durante l\'eliminazione dell\'articolo: ' + error.message);
     }
   };
 
@@ -57,13 +62,14 @@ export default function Admin() {
       navigate('/admin/login');
     } catch (error) {
       console.error('Error signing out:', error);
+      alert('Errore durante la disconnessione: ' + error.message);
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Caricamento...</div>
+        <div className="text-xl">Caricamento articoli...</div>
       </div>
     );
   }
@@ -99,60 +105,68 @@ export default function Admin() {
           </button>
         </div>
 
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Titolo
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Autore
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Data
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Azioni
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {articles.map((article) => (
-                <tr key={article.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4">
-                    <div className="text-sm font-medium text-gray-900">
-                      {article.title}
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {article.excerpt?.substring(0, 100)}...
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {article.author}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-500">
-                    {new Date(article.published_date).toLocaleDateString('it-IT')}
-                  </td>
-                  <td className="px-6 py-4 text-right text-sm font-medium">
-                    <button
-                      onClick={() => navigate(`/admin/editor/${article.id}`)}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                    >
-                      <Edit2 size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(article.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </td>
+        {articles.length === 0 ? (
+          <div className="bg-white shadow rounded-lg p-8 text-center">
+            <p className="text-gray-500">Nessun articolo trovato</p>
+          </div>
+        ) : (
+          <div className="bg-white shadow rounded-lg overflow-hidden">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Titolo
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Autore
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Data
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Azioni
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {articles.map((article) => (
+                  <tr key={article.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div className="text-sm font-medium text-gray-900">
+                        {article.title}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {article.excerpt?.substring(0, 100)}...
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {article.author}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">
+                      {new Date(article.published_date).toLocaleDateString('it-IT')}
+                    </td>
+                    <td className="px-6 py-4 text-right text-sm font-medium">
+                      <button
+                        onClick={() => navigate(`/admin/editor/${article.id}`)}
+                        className="text-blue-600 hover:text-blue-900 mr-4"
+                        title="Modifica"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(article.id)}
+                        className="text-red-600 hover:text-red-900"
+                        title="Elimina"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
